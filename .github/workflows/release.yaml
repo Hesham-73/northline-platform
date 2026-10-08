@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+  build-api:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/api
+          file: services/api/Dockerfile
+          push: false
+          tags: ghcr.io/hesham-73/northline-api:1.4.0
+
+  build-worker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/worker
+          file: services/worker/Dockerfile
+          push: false
+          tags: ghcr.io/hesham-73/northline-worker:1.4.0
+
+  build-web:
+    needs: [test, build-api]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/web
+          file: services/web/Dockerfile
+          push: false
+          tags: ghcr.io/hesham-73/northline-web:1.4.0

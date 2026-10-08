@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: northline
+spec:
+  selector:
+    matchLabels:
+      app: northline
+      component: api
+  template:
+    metadata:
+      labels:
+        app: northline
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/hesham-73/northline-api:1.4.0
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: northline-api
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: northline-db
+                  key: DATABASE_URL
+          volumeMounts:
+            - name: scratch
+              mountPath: /tmp/northline
+      volumes:
+        - name: scratch
+          persistentVolumeClaim:
+            claimName: api-scratch
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: northline
+spec:
+  selector:
+    matchLabels:
+      app: northline
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: northline
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/hesham-73/northline-worker:1.4.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: northline
+spec:
+  selector:
+    matchLabels:
+      app: northline
+      component: web
+  template:
+    metadata:
+      labels:
+        app: northline
+        component: web
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/hesham-73/northline-web:1.4.0
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: northline
+spec:
+  serviceName: postgres
+  selector:
+    matchLabels:
+      app: northline
+      component: postgres
+  template:
+    metadata:
+      labels:
+        app: northline
+        component: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16.4
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data

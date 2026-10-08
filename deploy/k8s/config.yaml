@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: northline-api
+  namespace: northline
+data:
+  PORT: "8080"
+  LOG_LEVEL: info
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: northline-db
+  namespace: northline
+type: Opaque
+stringData:
+  DATABASE_URL: postgres://northline:change-me@postgres:5432/northline
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: northline
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 8Gi

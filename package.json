@@ -1,0 +1,5 @@
+{
+  "name": "northline-platform",
+  "private": true,
+  "description": "Order and billing platform used to exercise a local architecture map."
+}
