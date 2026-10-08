@@ -30,7 +30,7 @@ metadata:
 spec:
   selector:
     app: northline
-    component: worker
+    component: worker-shifted
   ports:
     - port: 80
 ---
